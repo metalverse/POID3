@@ -5,9 +5,10 @@ import java.util.ArrayList;
 
 public class FrequencyToTone {
 
-	private Map<Double, String> soundsMap = new HashMap<Double, String>();
-	private ArrayList<String> tunesList = new ArrayList<String>();
-	private ArrayList<Integer> timeList = new ArrayList<Integer>();
+	//private Map<Double, String> soundsMap = new HashMap<Double, String>();
+	public ArrayList<String> tunesList = new ArrayList<String>();
+	public ArrayList<Integer> timeList = new ArrayList<Integer>();
+	int multiplier = 1;
 	
 	String tunesTab[] = {"C2","Cis2","D2","Dis2","E2","F2","Fis2","G2","Gis2","A2","Ais2","H2",
 			"C1","Cis1","D1","Dis1","E1","F1","Fis1","G1","Gis1","A1","Ais1","H1",
@@ -30,7 +31,7 @@ public class FrequencyToTone {
 		double tmp = Math.pow(2,(1.0/12));
 		System.out.println(tmp);
 		while(iterator < tunesTab.length){
-			soundsMap.put(freq, tunesTab[iterator]);
+			//soundsMap.put(freq, tunesTab[iterator]);
 			freqTab[iterator] = freq;
 			iterator++;
 			freq = (Math.pow(tmp,(16/15))) * freq;
@@ -43,11 +44,12 @@ public class FrequencyToTone {
 	
 	public String getTone(double freq){
 		int iterator = 0;
-		while(freq > freqTab[iterator]){
+		System.out.println(freq);
+		while(freq > freqTab[iterator] && iterator < (freqTab.length-1)){
 			iterator++;
 		}
 		if(iterator<tunesTab.length-1){
-			if(freq-freqTab[iterator] > freq-freqTab[iterator+1] ){
+			if(Math.abs(freq-freqTab[iterator]) > Math.abs(freq-freqTab[iterator+1]) ){
 				addToList(tunesTab[iterator+1]);
 				return (tunesTab[iterator+1] );
 			}
@@ -61,7 +63,10 @@ public class FrequencyToTone {
 		}
 	}
 	
-	//Sprawdzanie liczby wyst¹pieñ ostatnich dzwiêków a nie dzwieków bo zawsze ró¿ne
+	void setMultiplier(int multi){
+		
+		multiplier = multi;
+	}
 	
 	public void addToList(String tone){
 		if(tunesList.size()>1){
@@ -115,7 +120,7 @@ public class FrequencyToTone {
 			do{
 				for(int l=0; l<tunesTab.length; l++){
 					if(tunesList.get(i).compareTo(tunesTab[l]) == 0){
-						values[k] = (int)freqTab[l]*10;
+						values[k] = (int)freqTab[l]*multiplier;
 						break;
 					}
 				}
@@ -131,9 +136,11 @@ public class FrequencyToTone {
 	
 	
 	public void displayTones(){
-		System.out.println("Dlugosc tablic:" + tunesList.size() + "|" + timeList.size());
+		//System.out.println("Dlugosc tablic:" + tunesList.size() + "|" + timeList.size());
 		for(int i = 0; i < tunesList.size(); i++) {
             System.out.println("Dzwiek " + tunesList.get(i) + ", ilosc ramek:" + timeList.get(i));
         }
+		TonesToNotes ttn = new TonesToNotes("Zapis nutowy", tunesList, timeList);
+		ttn.GenerateScore();
 	}
 }

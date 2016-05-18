@@ -195,7 +195,10 @@ public class Audio extends JFrame implements ActionListener{
 		if (frames > 44100) {
 			mnoznik = frames / 44100;
 		}
-		System.out.println(frames / (best_m * mnoznik) + " Hz");
+		ftt.setMultiplier(mnoznik);
+		
+		System.out.println(frames / (best_m * mnoznik) + " Hz | dzwiek:" + ftt.getTone(frames / (best_m * mnoznik)));
+		//String b = ftt.getTone(frames / (best_m * mnoznik));
 		return (int) (frames / best_m);
 	}
 	
@@ -231,6 +234,7 @@ public class Audio extends JFrame implements ActionListener{
 		if (frames > 44100) {
 			mnoznik = frames / 44100;
 		}
+		ftt.setMultiplier(mnoznik);
 		System.out.println(frames / (best_m * mnoznik) + " Hz");
 
 		new Chart(vall);
@@ -291,13 +295,14 @@ public class Audio extends JFrame implements ActionListener{
 		if (frames > 44100) {
 			mnoznik = frames / 44100;
 		}
-		//System.out.println(frames / (index * mnoznik) + " Hz | dzwiek:" + ftt.getTone(frames / (index * mnoznik)));
-		String b = ftt.getTone(frames / (index * mnoznik));
+		ftt.setMultiplier(mnoznik);
+		System.out.println(frames / (index * mnoznik) + " Hz | dzwiek:" + ftt.getTone(frames / (index * mnoznik)));
+		//String b = ftt.getTone(frames / (index * mnoznik));
 		return frames / index;
 	}
 	
 	
-	int cepstrumWykres(int start, int ramka, int cut) {
+	void cepstrumWykres(int start, int ramka, int cut) {
 
 		for (int i = 0; i < ramka; i++) {
 			tmp[i] = buffer[i + start];
@@ -331,8 +336,9 @@ public class Audio extends JFrame implements ActionListener{
 		if (frames > 44100) {
 			mnoznik = frames / 44100;
 		}
+		ftt.setMultiplier(mnoznik);
 		System.out.println(frames / (index * mnoznik) + " Hz | dzwiek:" + ftt.getTone(index * mnoznik));
-		return frames / index;
+		//return frames / index;
 	}
 
 	
@@ -498,7 +504,32 @@ public class Audio extends JFrame implements ActionListener{
 	         double duration = frames/sampleRate;    	         
 	         int numFrames = (int)(duration * sampleRate);
 	         double[] buffer2 = new double[frames];
-	         WavFile wavFile = WavFile.newWavFile(new File("outS.wav"), 1, numFrames, 16, sampleRate);
+	         WavFile wavFile = WavFile.newWavFile(new File("wyjsciowySeq1.wav"), 1, numFrames, 16, sampleRate);
+	         for(int j = 0; j < values.length; j++) {
+		         for(int i = 0; i < frames/iloscRamek; i++) {
+		        	 int a = i + j*frames/iloscRamek;
+		        	 buffer2[a] = Math.sin(2.0 * Math.PI * values[j] * a / frames);	
+		         }
+	         }
+
+	         wavFile.writeFrames(buffer2, numFrames);
+	         wavFile.close();
+	      }
+	      catch (Exception e){
+	         System.err.println(e);
+	      }
+		
+		ftt.displayTones();
+	}   
+	
+void saveFileSequence2(int[] values) {	
+		
+		try{
+	         int sampleRate = 44100;    // Samples per second
+	         double duration = frames/sampleRate;    	         
+	         int numFrames = (int)(duration * sampleRate);
+	         double[] buffer2 = new double[frames];
+	         WavFile wavFile = WavFile.newWavFile(new File("wyjsciowySeq2.wav"), 1, numFrames, 16, sampleRate);
 	         for(int j = 0; j < values.length; j++) {
 		         for(int i = 0; i < frames/iloscRamek; i++) {
 		        	 int a = i + j*frames/iloscRamek;
@@ -532,7 +563,7 @@ public class Audio extends JFrame implements ActionListener{
 	         double duration = frames/sampleRate;    	         
 	         int numFrames = (int)(duration * sampleRate);
 	         double[] buffer2 = new double[frames];
-	         WavFile wavFile = WavFile.newWavFile(new File("out.wav"), 1, numFrames, 16, sampleRate);
+	         WavFile wavFile = WavFile.newWavFile(new File("wyjsciowy.wav"), 1, numFrames, 16, sampleRate);
 		     for(int i = 0; i < frames; i++) {
 		        	 buffer2[i] = Math.sin(2.0 * Math.PI * frequency * i / frames);	
 	         }
@@ -543,6 +574,7 @@ public class Audio extends JFrame implements ActionListener{
 	      catch (Exception e){
 	         System.err.println(e);
 	      }
+		ftt.displayTones();
 	} 
 	
 
@@ -558,7 +590,7 @@ public class Audio extends JFrame implements ActionListener{
         Object source = e.getSource();
         
 		if (source == autokorelacjaButton) {
-			
+			ftt = new FrequencyToTone();
 			ramka = Integer.parseInt(autokorelacjaField.getText());				
 			iloscRamek = frames/ramka;
 			tmp = new double[ramka];
@@ -577,6 +609,7 @@ public class Audio extends JFrame implements ActionListener{
 		} 
 		
 		if (source == cepstrumButton) {
+			ftt = new FrequencyToTone();
 			ramka = Integer.parseInt(cepstrumField.getText());
 			int cut = Integer.parseInt(cutCepstrumLabel.getText());
 			
@@ -611,6 +644,8 @@ public class Audio extends JFrame implements ActionListener{
 		if (source == saveSingleButton) {
 			
 			saveFile(values);
+			ftt.convertToValuesTab();
+
 			
 		} 
 		if (source == saveSeqButton) {
@@ -618,9 +653,13 @@ public class Audio extends JFrame implements ActionListener{
 			//for(int i=0; i<values.length; i++){
 			//	System.out.println(values[i]);
 			//}
-			saveFileSequence(values);
-			//ftt.convertToValuesTab();
-			//saveFileSequence(ftt.values);
+			//saveFileSequence(values);
+			ftt.convertToValuesTab();
+			saveFileSequence(ftt.values);
+			/*for(int i=0; i<ftt.values.length; i++){
+				System.out.println(ftt.values[i] + " | " + values[i]);
+			}
+			System.out.println(values.length + " | " + ftt.values.length);*/
 		} 
 
        

@@ -337,11 +337,10 @@ public class Audio extends JFrame implements ActionListener{
 			mnoznik = frames / 44100;
 		}
 		ftt.setMultiplier(mnoznik);
-		System.out.println(frames / (index * mnoznik) + " Hz | dzwiek:" + ftt.getTone(index * mnoznik));
+		System.out.println(frames / (index * mnoznik) + " Hz");
 		//return frames / index;
 	}
 
-	
 	
 	////////////////////////////////////////////////////
 	//												  //

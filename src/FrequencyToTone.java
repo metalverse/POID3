@@ -44,7 +44,7 @@ public class FrequencyToTone {
 	
 	public String getTone(double freq){
 		int iterator = 0;
-		System.out.println(freq);
+		//System.out.println(freq);
 		while(freq > freqTab[iterator] && iterator < (freqTab.length-1)){
 			iterator++;
 		}
